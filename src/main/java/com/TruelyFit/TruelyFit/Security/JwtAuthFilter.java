@@ -22,12 +22,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+   
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+    	// ADD THESE 2 DEBUG LINES
+        System.out.println("=== REQUEST INCOMING: " + request.getRequestURI());
+        System.out.println("=== AUTH HEADER: " + request.getHeader("Authorization"));
+
+    	
         // 1. Get Authorization header
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
@@ -69,6 +76,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 );
                 SecurityContextHolder.getContext()
                         .setAuthentication(authToken);
+             // After extracting jwt
+                System.out.println("Token received: " + jwt);
+                System.out.println("Email extracted: " + userEmail);
             }
         }
 

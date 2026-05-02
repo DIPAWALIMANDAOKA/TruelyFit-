@@ -5,6 +5,12 @@ import java.time.LocalDate;
 import com.TruelyFit.TruelyFit.Enum.Goal;
 import com.TruelyFit.TruelyFit.Enum.MemberStatus;
 
+import lombok.*;
+
+@Data
+@Builder        // ← this must be here
+@NoArgsConstructor
+@AllArgsConstructor
 public class MemberResponse {
     private Long id;
     private Long userId;
