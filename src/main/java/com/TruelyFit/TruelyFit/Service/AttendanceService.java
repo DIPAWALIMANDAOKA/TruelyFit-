@@ -5,6 +5,8 @@ import com.TruelyFit.TruelyFit.Dto.AttendanceResponse;
 import com.TruelyFit.TruelyFit.Entity.Attendance;
 import com.TruelyFit.TruelyFit.Entity.Member;
 import com.TruelyFit.TruelyFit.Enum.AttendaceStatus;
+import com.TruelyFit.TruelyFit.Exception.DuplicateRecordException;
+import com.TruelyFit.TruelyFit.Exception.ResourceNotFoundException;
 import com.TruelyFit.TruelyFit.Repository.AttendanceRepository;
 import com.TruelyFit.TruelyFit.Repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +27,11 @@ public class AttendanceService {
 
         // Step 1 — Does this member exist?
         Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Member not found with id: " + request.getMemberId()));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + request.getMemberId()));
         // Step 2 — Already marked today?
         if (attendanceRepository.existsByMemberIdAndAttendanceDate(
                 request.getMemberId(), request.getAttendanceDate())) {
-            throw new RuntimeException(
-                    "Attendance already marked for this member on: "
-                    + request.getAttendanceDate());
+        	throw new DuplicateRecordException("Attendance already marked for this member on: " + request.getAttendanceDate());
         }
 
         // Step 3 — Build and save

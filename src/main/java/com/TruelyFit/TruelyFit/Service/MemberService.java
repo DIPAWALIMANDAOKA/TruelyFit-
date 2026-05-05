@@ -5,6 +5,8 @@ import com.TruelyFit.TruelyFit.Dto.MemberResponse;
 import com.TruelyFit.TruelyFit.Entity.Member;
 import com.TruelyFit.TruelyFit.Entity.Trainer;
 import com.TruelyFit.TruelyFit.Entity.User;
+import com.TruelyFit.TruelyFit.Exception.DuplicateRecordException;
+import com.TruelyFit.TruelyFit.Exception.ResourceNotFoundException;
 import com.TruelyFit.TruelyFit.Repository.MemberRepository;
 import com.TruelyFit.TruelyFit.Repository.TrainerRepository;
 import com.TruelyFit.TruelyFit.Repository.UserRepository;
@@ -27,12 +29,12 @@ public class MemberService {
 
         // Check user exists
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with id: " + request.getUserId()));
 
         // Check not already a member
         if (memberRepository.existsByUserId(request.getUserId())) {
-            throw new RuntimeException("User is already a member");
+            throw new DuplicateRecordException("User is already a member");
         }
 
         // Build member
@@ -44,7 +46,7 @@ public class MemberService {
         // Assign trainer if provided
         if (request.getTrainerId() != null) {
             Trainer trainer = trainerRepository.findById(request.getTrainerId())
-                    .orElseThrow(() -> new RuntimeException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "Trainer not found with id: " + request.getTrainerId()));
             member.setTrainer(trainer);
         }
@@ -64,7 +66,7 @@ public class MemberService {
     // Get member by ID — ADMIN only
     public MemberResponse getMemberById(Long id) {
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Member not found with id: " + id));
         return mapToResponse(member);
     }
@@ -80,7 +82,7 @@ public class MemberService {
     // Get own profile — MEMBER only
     public MemberResponse getMyProfile(Long userId) {
         Member member = memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Member profile not found for user: " + userId));
         return mapToResponse(member);
     }
@@ -88,14 +90,14 @@ public class MemberService {
     // Update member — ADMIN only
     public MemberResponse updateMember(Long id, MemberRequest request) {
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Member not found with id: " + id));
 
         member.setGoal(request.getGoal());
 
         if (request.getTrainerId() != null) {
             Trainer trainer = trainerRepository.findById(request.getTrainerId())
-                    .orElseThrow(() -> new RuntimeException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "Trainer not found with id: " + request.getTrainerId()));
             member.setTrainer(trainer);
         }
@@ -106,7 +108,7 @@ public class MemberService {
     // Delete member — ADMIN only
     public void deleteMember(Long id) {
         if (!memberRepository.existsById(id)) {
-            throw new RuntimeException("Member not found with id: " + id);
+            throw new ResourceNotFoundException("Member not found with id: " + id);
         }
         memberRepository.deleteById(id);
     }
